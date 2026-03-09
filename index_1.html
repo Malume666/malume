@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>malume</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100vh;
+  background: #0a0a0a;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ─── STARS CANVAS ─── */
+#stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ─── PAGE LAYOUT ─── */
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* ─── OUTER CARD ─── */
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(15, 15, 15, 0.92);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  backdrop-filter: blur(12px);
+  /* white neon border glow - default */
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 0 30px rgba(255,255,255,0.04),
+    0 20px 60px rgba(0,0,0,0.6);
+  transition: box-shadow 1.2s ease, border-color 1.2s ease;
+  animation: cardIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── VIEW COUNT ─── */
+.view-count {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.view-count svg {
+  width: 13px; height: 13px;
+  fill: rgba(255,255,255,0.3);
+}
+
+/* ─── AVATAR ─── */
+.avatar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+  margin-top: 8px;
+}
+
+.avatar-img {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: #1c1c1c;
+  border: 2px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  font-size: 2rem;
+  position: relative;
+  z-index: 1;
+  /* white ring glow default */
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.08), 0 0 16px rgba(255,255,255,0.06);
+  transition: box-shadow 1.2s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.avatar-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  /* subtle rotating white arc */
+  background: conic-gradient(from 0deg, transparent 70%, rgba(255,255,255,0.5) 100%, transparent);
+  animation: spinRing 5s linear infinite;
+  transition: opacity 0.6s ease;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── NAME ─── */
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.name {
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255,255,255,0.15);
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+
+.verified-badge {
+  width: 20px; height: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem;
+  color: #0a0a0a;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+  transition: box-shadow 1.2s ease;
+}
+
+/* ─── TAGLINE ─── */
+.tagline {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+
+/* ─── DIVIDER ─── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 0 0 18px;
+}
+
+/* ─── SOCIAL BUTTONS ─── */
+.socials {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.social-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  /* smooth scale on hover */
+  transition:
+    transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+    background 1.2s ease,
+    border-color 1.2s ease,
+    box-shadow 1.2s ease;
+}
+
+.social-btn svg {
+  width: 16px; height: 16px;
+  fill: rgba(255,255,255,0.55);
+  transition: fill 1.2s ease;
+  position: relative; z-index: 1;
+}
+
+.social-btn:hover {
+  transform: scale(1.12);
+}
+
+/* ─── WIDGET BOXES ─── */
+.widget {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition:
+    border-color 1.2s ease,
+    box-shadow 1.2s ease,
+    transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.widget + .widget {
+  margin-top: 10px;
+}
+
+.widget:hover {
+  transform: scale(1.015);
+}
+
+/* ─── DISCORD PRESENCE WIDGET ─── */
+.presence {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.presence-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: #222;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+}
+
+.presence-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.online-dot {
+  position: absolute;
+  bottom: 1px; right: 1px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #23a55a;
+  border: 2px solid #111;
+}
+
+.presence-info { flex: 1; min-width: 0; }
+
+.presence-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex; align-items: center; gap: 5px;
+  margin-bottom: 2px;
+}
+
+.presence-name svg {
+  width: 13px; height: 13px;
+  fill: #5865F2;
+  flex-shrink: 0;
+}
+
+.presence-status {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.add-discord-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+  transition:
+    border-color 1.2s ease,
+    color 1.2s ease,
+    box-shadow 1.2s ease,
+    transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.add-discord-btn:hover {
+  transform: scale(1.06);
+}
+
+.add-discord-btn svg {
+  width: 10px; height: 10px;
+  fill: currentColor;
+}
+
+/* ─── DIVIDER INSIDE WIDGET ─── */
+.widget-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 12px 0;
+}
+
+/* ─── SPOTIFY TRACK ROW ─── */
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.track-art {
+  width: 46px; height: 46px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.track-art img { width: 100%; height: 100%; object-fit: cover; }
+
+.track-info { flex: 1; min-width: 0; }
+
+.track-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
+.track-sub {
+  font-size: 0.66rem;
+  color: rgba(255,255,255,0.38);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.7);
+  border-radius: 99px;
+  width: 0%;
+  transition: width 1s linear, background 1.2s ease;
+}
+
+.progress-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.28);
+}
+
+/* ─── MUSIC PLAYER WIDGET ─── */
+.player-widget {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-icon {
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+  transition: color 1.2s ease;
+}
+
+.player-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+.player-track {
+  flex: 1;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ctrl-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+}
+
+.ctrl-btn:hover { transform: scale(1.18); background: rgba(255,255,255,0.1); }
+
+.ctrl-btn svg { width: 10px; height: 10px; fill: rgba(255,255,255,0.7); }
+
+.ctrl-btn.play-btn {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.ctrl-btn.play-btn svg { width: 12px; height: 12px; fill: #fff; }
+
+/* player progress row */
+.player-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.player-time {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  min-width: 28px;
+}
+
+.player-time.right { text-align: right; }
+
+/* ─── IDLE STATE ─── */
+.idle-text {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* ════════════════════════════════════════
+   RGB HOVER — smooth JS-driven transitions
+   All handled via CSS custom properties +
+   JS that transitions them on mouseenter/leave
+════════════════════════════════════════ */
+
+/* Hoverable elements get --rgb-opacity & --rgb-hue injected by JS */
+.rgb-hover {
+  --h: 0;
+  --s: 100%;
+  --l: 60%;
+  --op: 0;
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<main class="page">
+  <div class="card rgb-hover" id="mainCard" style="position:relative">
+
+    <!-- view count -->
+    <div class="view-count">
+      <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      <span id="viewCount">459</span>
+    </div>
+
+    <!-- Avatar -->
+    <div class="avatar-wrap">
+      <div class="avatar-ring" id="avatarRing"></div>
+      <div class="avatar-img rgb-hover" id="avatarEl">
+        <!-- Replace with: <img src="YOUR_PHOTO_URL" alt="malume"> -->
+        <span>🌑</span>
+      </div>
+    </div>
+
+    <!-- Name -->
+    <div class="name-row">
+      <span class="name rgb-hover" id="nameEl">malume</span>
+      <span class="verified-badge rgb-hover" id="badgeEl">◆</span>
+    </div>
+
+    <!-- Tagline -->
+    <div class="tagline">verified, authenticated, certified, decorate</div>
+
+    <div class="divider"></div>
+
+    <!-- Socials -->
+    <div class="socials">
+      <!-- Discord -->
+      <a href="https://discord.com/users/YOURDISCORDID" target="_blank" class="social-btn rgb-hover" id="btnDiscord" title="Discord">
+        <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      </a>
+      <!-- Spotify -->
+      <a href="https://open.spotify.com/user/YOURSPOTIFYID" target="_blank" class="social-btn rgb-hover" id="btnSpotify" title="Spotify">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      </a>
+      <!-- ko-fi / heart -->
+      <a href="#" class="social-btn rgb-hover" id="btnKofi" title="Ko-fi">
+        <svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+      </a>
+      <!-- link / chain -->
+      <a href="#" class="social-btn rgb-hover" id="btnLink" title="Links">
+        <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+      </a>
+    </div>
+
+    <!-- Discord Presence + Spotify Listening Widget -->
+    <div class="widget rgb-hover" id="widget1">
+      <div class="presence">
+        <div class="presence-avatar">
+          <!-- Replace src with your avatar image -->
+          <div style="width:100%;height:100%;background:#222;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🌑</div>
+          <div class="online-dot"></div>
+        </div>
+        <div class="presence-info">
+          <div class="presence-name">
+            <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            <span id="discordName">@malume</span>
+          </div>
+          <div class="presence-status" id="discordStatus">Listening to Spotify</div>
+        </div>
+        <a href="https://discord.com/users/YOURDISCORDID" target="_blank" class="add-discord-btn rgb-hover" id="addDiscordBtn">
+          Add on Discord
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </a>
+      </div>
+
+      <div class="widget-divider" id="spotifyDivider" style="display:none"></div>
+
+      <!-- Spotify track row (shows when playing) -->
+      <div class="track-row" id="trackRow" style="display:none">
+        <div class="track-art">
+          <img src="" alt="" id="trackArt" style="display:none">
+          <div id="trackArtPlaceholder" style="width:100%;height:100%;background:#1e1e1e;border-radius:8px"></div>
+        </div>
+        <div class="track-info" style="flex:1;min-width:0">
+          <div class="track-name" id="trackName">—</div>
+          <div class="track-sub" id="trackSub">—</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-times">
+            <span id="timeElapsed">0:00</span>
+            <span id="timeDuration">0:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Music Player Widget -->
+    <div class="widget rgb-hover" id="widget2">
+      <div class="player-widget">
+        <div class="player-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        </div>
+        <div class="player-track" id="playerTrack">not listening right now</div>
+        <div class="player-controls">
+          <div class="ctrl-btn" id="prevBtn">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </div>
+          <div class="ctrl-btn play-btn" id="playBtn">
+            <svg viewBox="0 0 24 24" id="playIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </div>
+          <div class="ctrl-btn" id="nextBtn">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="player-progress-row">
+        <span class="player-time" id="playerElapsed">0:00</span>
+        <div class="progress-bar" style="flex:1">
+          <div class="progress-fill" id="playerFill"></div>
+        </div>
+        <span class="player-time right" id="playerDuration">0:00</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ══════════════════════════════════════════
+   STARS — twinkling, slow drift
+══════════════════════════════════════════ */
+(function () {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let stars = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function mkStar() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 0.3 + Math.random() * 1.1,
+      // twinkle phase
+      phase: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.006 + Math.random() * 0.012,
+      // very slow drift
+      vx: (Math.random() - 0.5) * 0.04,
+      vy: (Math.random() - 0.5) * 0.04,
+      baseAlpha: 0.3 + Math.random() * 0.55,
+    };
+  }
+
+  function init() {
+    resize();
+    stars = Array.from({ length: 220 }, mkStar);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const t = performance.now() * 0.001;
+    stars.forEach(s => {
+      s.phase += s.twinkleSpeed;
+      s.x += s.vx;
+      s.y += s.vy;
+      // wrap around
+      if (s.x < -2) s.x = W + 2;
+      if (s.x > W + 2) s.x = -2;
+      if (s.y < -2) s.y = H + 2;
+      if (s.y = -2) s.y = H + 2;
+
+      const alpha = s.baseAlpha * ((Math.sin(s.phase) + 1) / 2 * 0.7 + 0.3);
+      // occasional brighter "sparkle" stars
+      const isSpark = s.baseAlpha > 0.75;
+
+      if (isSpark) {
+        // draw a small 4-point cross sparkle
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = s.r * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(s.x - s.r * 2, s.y);
+        ctx.lineTo(s.x + s.r * 2, s.y);
+        ctx.moveTo(s.x, s.y - s.r * 2);
+        ctx.lineTo(s.x, s.y + s.r * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); });
+  init();
+  draw();
+})();
+
+/* ══════════════════════════════════════════
+   RGB ON HOVER — smooth, CSS-transition based
+   - White by default
+   - On mouseenter: start cycling hue with JS,
+     applying via element style (color/box-shadow etc)
+     with long CSS transitions so it flows in smoothly
+   - On mouseleave: transition back to white smoothly
+══════════════════════════════════════════ */
+
+// Cycle speed in ms per full rotation
+const RGB_CYCLE_MS = 3000;
+
+// Track active hover states
+const hoverTimers = new Map();
+
+// Map element IDs to what properties to animate
+// 'text'   → color + text-shadow
+// 'border' → border-color + box-shadow
+// 'both'   → text + border
+// 'bg'     → background tint + border
+// 'icon'   → fill (via color on parent)
+
+function hsl(h) {
+  // h: 0-360
+  return `hsl(${h}, 100%, 65%)`;
+}
+
+function rgbGlow(h, strength = 0.35) {
+  return `hsl(${h}, 100%, 65%)`;
+}
+
+function applyRGB(el, h, type) {
+  const col = hsl(h);
+  const glow = `0 0 14px hsla(${h},100%,65%,0.45), 0 0 30px hsla(${h},100%,65%,0.15)`;
+  const borderGlow = `0 0 12px hsla(${h},100%,65%,0.3), inset 0 0 8px hsla(${h},100%,65%,0.05)`;
+
+  if (type === 'text') {
+    el.style.color = col;
+    el.style.textShadow = `0 0 12px hsla(${h},100%,65%,0.6), 0 0 28px hsla(${h},100%,65%,0.25)`;
+  } else if (type === 'border') {
+    el.style.borderColor = `hsla(${h},100%,65%,0.55)`;
+    el.style.boxShadow = borderGlow;
+  } else if (type === 'both') {
+    el.style.color = col;
+    el.style.textShadow = `0 0 10px hsla(${h},100%,65%,0.5)`;
+    el.style.borderColor = `hsla(${h},100%,65%,0.4)`;
+    el.style.boxShadow = borderGlow;
+  } else if (type === 'icon') {
+    el.style.color = col;
+    el.style.borderColor = `hsla(${h},100%,65%,0.4)`;
+    el.style.boxShadow = `0 0 10px hsla(${h},100%,65%,0.2)`;
+    const svg = el.querySelector('svg');
+    if (svg) svg.style.fill = col;
+  } else if (type === 'card') {
+    el.style.borderColor = `hsla(${h},100%,65%,0.25)`;
+    el.style.boxShadow = `0 0 0 1px hsla(${h},100%,65%,0.08), 0 0 40px hsla(${h},100%,65%,0.06), 0 20px 60px rgba(0,0,0,0.6)`;
+  } else if (type === 'widget') {
+    el.style.borderColor = `hsla(${h},100%,65%,0.25)`;
+    el.style.boxShadow = `0 0 16px hsla(${h},100%,65%,0.08)`;
+  } else if (type === 'pill') {
+    el.style.borderColor = `hsla(${h},100%,65%,0.4)`;
+    el.style.color = col;
+    el.style.boxShadow = `0 0 8px hsla(${h},100%,65%,0.15)`;
+  }
+}
+
+function clearRGB(el, type) {
+  // Restore white/default with transition
+  el.style.transition = 'color 1s ease, text-shadow 1s ease, border-color 1s ease, box-shadow 1s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+
+  if (type === 'text') {
+    el.style.color = '#ffffff';
+    el.style.textShadow = '0 0 20px rgba(255,255,255,0.15)';
+  } else if (type === 'border') {
+    el.style.borderColor = 'rgba(255,255,255,0.1)';
+    el.style.boxShadow = '';
+  } else if (type === 'both') {
+    el.style.color = '#ffffff';
+    el.style.textShadow = '0 0 20px rgba(255,255,255,0.12)';
+    el.style.borderColor = 'rgba(255,255,255,0.08)';
+    el.style.boxShadow = '';
+  } else if (type === 'icon') {
+    el.style.color = '';
+    el.style.borderColor = 'rgba(255,255,255,0.1)';
+    el.style.boxShadow = '';
+    const svg = el.querySelector('svg');
+    if (svg) svg.style.fill = 'rgba(255,255,255,0.55)';
+  } else if (type === 'card') {
+    el.style.borderColor = 'rgba(255,255,255,0.1)';
+    el.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.06), 0 0 30px rgba(255,255,255,0.04), 0 20px 60px rgba(0,0,0,0.6)';
+  } else if (type === 'widget') {
+    el.style.borderColor = 'rgba(255,255,255,0.08)';
+    el.style.boxShadow = '';
+  } else if (type === 'pill') {
+    el.style.borderColor = 'rgba(255,255,255,0.15)';
+    el.style.color = 'rgba(255,255,255,0.7)';
+    el.style.boxShadow = '';
+  }
+}
+
+function startRGB(el, type) {
+  if (hoverTimers.has(el)) return;
+  const startTime = performance.now();
+  // fast initial transition into RGB
+  el.style.transition = 'color 0.6s ease, text-shadow 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+
+  function tick(now) {
+    if (!hoverTimers.has(el)) return;
+    const elapsed = now - startTime;
+    const h = (elapsed / RGB_CYCLE_MS * 360) % 360;
+    applyRGB(el, h, type);
+    hoverTimers.set(el, requestAnimationFrame(tick));
+  }
+  hoverTimers.set(el, requestAnimationFrame(tick));
+}
+
+function stopRGB(el, type) {
+  if (hoverTimers.has(el)) {
+    cancelAnimationFrame(hoverTimers.get(el));
+    hoverTimers.delete(el);
+  }
+  clearRGB(el, type);
+}
+
+// Register elements
+const rgbTargets = [
+  { id: 'nameEl',       type: 'text'   },
+  { id: 'badgeEl',      type: 'text'   },
+  { id: 'avatarEl',     type: 'border' },
+  { id: 'mainCard',     type: 'card'   },
+  { id: 'btnDiscord',   type: 'icon'   },
+  { id: 'btnSpotify',   type: 'icon'   },
+  { id: 'btnKofi',      type: 'icon'   },
+  { id: 'btnLink',      type: 'icon'   },
+  { id: 'widget1',      type: 'widget' },
+  { id: 'widget2',      type: 'widget' },
+  { id: 'addDiscordBtn',type: 'pill'   },
+];
+
+rgbTargets.forEach(({ id, type }) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('mouseenter', () => startRGB(el, type));
+  el.addEventListener('mouseleave', () => stopRGB(el, type));
+});
+
+/* ══════════════════════════════════════════
+   SCALE ON HOVER — smooth expand/contract
+   Using CSS transition (set via JS so it applies everywhere)
+══════════════════════════════════════════ */
+
+// Elements that should scale up while hovered
+const scaleTargets = [
+  { id: 'avatarEl',      scale: 1.06 },
+  { id: 'nameEl',        scale: 1.04 },
+  { id: 'btnDiscord',    scale: 1.12 },
+  { id: 'btnSpotify',    scale: 1.12 },
+  { id: 'btnKofi',       scale: 1.12 },
+  { id: 'btnLink',       scale: 1.12 },
+  { id: 'widget1',       scale: 1.012 },
+  { id: 'widget2',       scale: 1.012 },
+  { id: 'addDiscordBtn', scale: 1.06  },
+];
+
+scaleTargets.forEach(({ id, scale }) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.transition = [
+    'color 0.6s ease',
+    'text-shadow 0.6s ease',
+    'border-color 0.6s ease',
+    'box-shadow 0.6s ease',
+    'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)',
+    'fill 0.6s ease',
+  ].join(', ');
+  el.addEventListener('mouseenter', () => el.style.transform = `scale(${scale})`);
+  el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
+});
+
+
+/* ══════════════════════════════════════════
+   SPOTIFY POLLING
+══════════════════════════════════════════ */
+const ENDPOINT = '/api/spotify'; // ← Set to your Cloudflare Worker URL
+let progInterval = null, localProg = 0;
+const fmt = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+function setIdle() {
+  document.getElementById('trackRow').style.display = 'none';
+  document.getElementById('spotifyDivider').style.display = 'none';
+  document.getElementById('discordStatus').textContent = 'Online';
+  document.getElementById('playerTrack').textContent = 'not listening right now';
+  document.getElementById('playerFill').style.width = '0%';
+  document.getElementById('playerElapsed').textContent = '0:00';
+  document.getElementById('playerDuration').textContent = '0:00';
+  clearInterval(progInterval);
+}
+
+function setPlaying(data) {
+  document.getElementById('trackRow').style.display = 'flex';
+  document.getElementById('spotifyDivider').style.display = 'block';
+  document.getElementById('discordStatus').textContent = 'Listening to Spotify';
+  document.getElementById('trackName').textContent = data.trackName;
+  document.getElementById('trackSub').textContent = `by ${data.artist}${data.album ? ' · ' + data.album : ''}`;
+  document.getElementById('timeDuration').textContent = fmt(data.duration);
+  document.getElementById('playerTrack').textContent = `${data.artist} - ${data.trackName}`;
+  document.getElementById('playerDuration').textContent = fmt(data.duration);
+
+  const art = document.getElementById('trackArt');
+  const placeholder = document.getElementById('trackArtPlaceholder');
+  if (data.albumArt) {
+    art.src = data.albumArt;
+    art.style.display = 'block';
+    placeholder.style.display = 'none';
+  }
+
+  localProg = data.progress;
+  clearInterval(progInterval);
+  progInterval = setInterval(() => {
+    localProg += 1000;
+    if (localProg > data.duration) localProg = data.duration;
+    const pct = (localProg / data.duration * 100).toFixed(1) + '%';
+    document.getElementById('progressFill').style.width = pct;
+    document.getElementById('playerFill').style.width = pct;
+    document.getElementById('timeElapsed').textContent = fmt(localProg);
+    document.getElementById('playerElapsed').textContent = fmt(localProg);
+  }, 1000);
+}
+
+async function poll() {
+  try {
+    const r = await fetch(ENDPOINT);
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    d.isPlaying ? setPlaying(d) : setIdle();
+  } catch (e) { setIdle(); }
+}
+
+poll();
+setInterval(poll, 30000);
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════╗
+║         LIVE SPOTIFY SETUP (Cloudflare Worker)       ║
+╠══════════════════════════════════════════════════════╣
+║  1. dash.cloudflare.com → Workers & Pages            ║
+║     → Create Worker → paste the code below           ║
+║                                                      ║
+║  export default {                                    ║
+║    async fetch(req, env) {                           ║
+║      const creds = btoa(env.CLIENT_ID+':'+           ║
+║                         env.CLIENT_SECRET);          ║
+║      const tok = await fetch(                        ║
+║        'https://accounts.spotify.com/api/token',     ║
+║        { method:'POST',                              ║
+║          headers:{'Authorization':'Basic '+creds,    ║
+║            'Content-Type':                           ║
+║            'application/x-www-form-urlencoded'},     ║
+║          body:'grant_type=refresh_token'             ║
+║               +'&refresh_token='+env.REFRESH_TOKEN   ║
+║        }).then(r=>r.json());                         ║
+║      const np = await fetch(                         ║
+║        'https://api.spotify.com/v1/me/player'        ║
+║        +'/currently-playing',                        ║
+║        {headers:{Authorization:                      ║
+║          'Bearer '+tok.access_token}});              ║
+║      if(np.status===204)                             ║
+║        return Response.json({isPlaying:false},       ║
+║          {headers:{'Access-Control-Allow-Origin':'*'}})║
+║      const d = await np.json();                      ║
+║      return Response.json({                          ║
+║        isPlaying: d.is_playing,                      ║
+║        trackName: d.item.name,                       ║
+║        artist: d.item.artists                        ║
+║                .map(a=>a.name).join(', '),            ║
+║        album: d.item.album.name,                     ║
+║        albumArt: d.item.album.images[1]?.url,        ║
+║        progress: d.progress_ms,                      ║
+║        duration: d.item.duration_ms                  ║
+║      },{headers:{'Access-Control-Allow-Origin':'*'}})║
+║    }                                                 ║
+║  }                                                   ║
+║                                                      ║
+║  2. Worker secrets to add:                           ║
+║     CLIENT_ID · CLIENT_SECRET · REFRESH_TOKEN        ║
+║                                                      ║
+║  3. Get tokens at developer.spotify.com/dashboard    ║
+║     Refresh token helper:                            ║
+║     spotify-refresh-token.vercel.app                 ║
+║                                                      ║
+║  4. Point ENDPOINT const above to your worker URL    ║
+╚══════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
