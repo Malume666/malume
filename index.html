@@ -38,6 +38,12 @@
       overflow: hidden;
     }
 
+    /* Mobile — allow vertical scroll */
+    @media (max-width: 768px) {
+      html, body { overflow-y: auto; }
+      .page { height: auto; min-height: 100vh; overflow: visible; }
+    }
+
     #stars-canvas {
       position: fixed;
       inset: 0;
