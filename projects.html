@@ -112,15 +112,7 @@ a.g-status:hover{background:rgba(var(--c),.16);box-shadow:inset 0 0 22px rgba(va
 .gs-card{--c:187,154,247;position:relative;border-radius:18px;text-align:center;border:2px solid rgba(var(--c),.28);background:rgba(8,8,20,.82);backdrop-filter:blur(28px);
   box-shadow:0 0 30px rgba(var(--c),.1),0 0 70px rgba(122,162,247,.07);transition:border-color .3s,box-shadow .3s}
 .gs-card:hover{border-color:rgba(var(--c),.6);box-shadow:0 0 28px rgba(var(--c),.24),0 0 70px rgba(122,162,247,.12)}
-.gs-stage{position:relative;height:150px;overflow:hidden;border-radius:16px 16px 0 0;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
-.gs-ico{position:absolute;top:50%;left:50%;width:92px;height:92px;margin:-46px 0 0 -46px;padding:0;border-radius:22px;border:3px solid #08080f;background:#111128;overflow:hidden;cursor:pointer;
-  box-shadow:0 0 0 2px rgba(var(--c),.15);transition:transform .55s cubic-bezier(.23,1,.32,1),opacity .55s,filter .55s,box-shadow .4s}
-.gs-ico img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.gs-ico.sel{cursor:default;box-shadow:0 0 0 2px rgba(var(--c),.55),0 0 26px rgba(var(--c),.4)}
-.gs-body{position:relative;z-index:1;padding:0 20px;display:flex;flex-direction:column;gap:12px}
-a.gs-name{display:block;text-decoration:none;color:#fff}
-a.gs-name:hover{text-shadow:0 0 12px rgba(var(--c),.8)}
+.gs-body{position:relative;z-index:1;padding:20px 20px 0;display:flex;flex-direction:column;gap:12px}
 .gs-stats{display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:12px 0}
 .gs-stats i{width:1px;height:34px;background:var(--border)}
 .gs-stat{display:flex;flex-direction:column;align-items:center;gap:5px}
@@ -160,10 +152,7 @@ a.gs-name:hover{text-shadow:0 0 12px rgba(var(--c),.8)}
   <!-- Group stats -->
   <div class="gs">
     <div class="gs-card">
-      <div class="gs-stage" id="gs-stage"></div>
       <div class="gs-body">
-        <div class="g-div"></div>
-        <a class="g-name gs-name" id="gs-name" href="#" target="_blank" rel="noopener">Loading…</a>
         <div class="gs-stats">
           <div class="gs-stat">
             <div><svg class="ico" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span id="gs-visits">—</span></div>
@@ -371,76 +360,81 @@ const REVENUE   = { value: 70000000, prefix: 'R$' };
   update();setInterval(update,REFRESH);
 })();
 
-/* GROUP STATS */
+/* GROUP STATS — totals only (group names, icons and links are intentionally not shown) */
 (function(){
+  const REFRESH_MS = 5*60*1000;   // normal refresh
+  const RETRY_MS   = 20*1000;     // retry sooner when some requests failed
   const $=id=>document.getElementById(id);
-  const stage=$('gs-stage'),nameEl=$('gs-name'),visEl=$('gs-visits'),memEl=$('gs-members'),revEl=$('gs-rev');
+  const visEl=$('gs-visits'),memEl=$('gs-members'),revEl=$('gs-rev');
   const nf=new Intl.NumberFormat('en-US');
   const compact=n=>n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':nf.format(n);
-  const getJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  let tok=0;
   function countTo(el,to,fmt=nf.format){
-    const from=parseInt(el.dataset.v||'0',10);el.dataset.v=to;const t0=performance.now();
-    (function step(now){const p=Math.min(1,(now-t0)/900),e=1-Math.pow(1-p,3);
+    if(String(to)===el.dataset.v)return;             // unchanged: don't re-animate
+    const from=parseInt(el.dataset.v||'0',10),my=el._t=++tok;el.dataset.v=to;const t0=performance.now();
+    (function step(now){if(el._t!==my)return;         // a newer animation took over
+      const p=Math.min(1,(now-t0)/900),e=1-Math.pow(1-p,3);
       el.textContent=fmt(Math.round(from+(to-from)*e));if(p<1)requestAnimationFrame(step)})(t0);
   }
   countTo(revEl,REVENUE.value,n=>REVENUE.prefix+nf.format(n));
 
   const ids=GROUP_IDS.map(String).filter(x=>/^\d+$/.test(x));
-  if(!ids.length){nameEl.textContent='Add your group IDs';nameEl.removeAttribute('href');return}
-  const groups=ids.map(id=>({id,name:'Loading…'}));
-  let sel=0;
+  if(!ids.length)return;
 
-  groups.forEach((g,i)=>{
-    const b=document.createElement('button');b.className='gs-ico';b.innerHTML='<span class="sk"></span>';
-    b.onclick=()=>{sel=i;render()};stage.appendChild(b);g.el=b;
-  });
-  function render(){
-    groups.forEach((g,i)=>{
-      const d=i-sel,a=Math.abs(d);
-      g.el.style.transform=`translateX(${d*84}px) scale(${a===0?1:a===1?.68:.46})`;
-      g.el.style.opacity=a===0?1:a===1?.55:a===2?.25:0;
-      g.el.style.filter=a===0?'none':`blur(${a>1?1.5:.5}px)`;
-      g.el.style.zIndex=10-a;
-      g.el.style.pointerEvents=a>2?'none':'auto';
-      g.el.classList.toggle('sel',a===0);
-      g.el.setAttribute('aria-label',g.name);
-    });
-    const g=groups[sel];nameEl.textContent=g.name;nameEl.href=`https://www.roblox.com/groups/${g.id}`;
+  /* fetch with retries — RoProxy rate-limits (429) when many groups are requested at once */
+  async function get(u){
+    for(let t=0;t<4;t++){
+      try{
+        const r=await fetch(u);
+        if(r.ok)return await r.json();
+        if(r.status!==429&&r.status<500)break;
+      }catch(e){}
+      await sleep(1500*(t+1));
+    }
+    throw new Error('request failed');
   }
-  render();
+  async function pool(list,n,fn){
+    const q=[...list];
+    await Promise.all(Array.from({length:n},async()=>{while(q.length)await fn(q.shift())}));
+  }
 
-  /* icons (once) */
-  getJSON(`https://thumbnails.roproxy.com/v1/groups/icons?groupIds=${ids.join(',')}&size=420x420&format=Png&isCircular=false`)
-    .then(j=>(j.data||[]).forEach(o=>{
-      const g=groups.find(g=>g.id===String(o.targetId));
-      if(g&&o.imageUrl)g.el.innerHTML=`<img alt="" src="${o.imageUrl}">`;
-    })).catch(e=>console.warn('Group icons',e));
+  /* last known good values — a failed request can never lower a total */
+  const members={},games={},visits={};
 
-  /* members + visits (summed across every group) */
+  async function groupGames(id){
+    const out=[];let cur='';
+    do{
+      const j=await get(`https://games.roproxy.com/v2/groups/${id}/games?accessFilter=2&limit=100${cur?'&cursor='+encodeURIComponent(cur):''}`);
+      (j.data||[]).forEach(x=>out.push(x.id));cur=j.nextPageCursor||'';
+    }while(cur);
+    return out;                                        // only returned if every page loaded
+  }
+
   async function load(){
-    try{
-      const info=await Promise.all(ids.map(id=>getJSON(`https://groups.roproxy.com/v1/groups/${id}`).catch(e=>{console.warn('group',id,e);return null})));
-      let members=0;
-      info.forEach((g,i)=>{if(g){groups[i].name=g.name;members+=g.memberCount||0}});
-      countTo(memEl,members);render();
-
-      const uids=new Set();
-      await Promise.all(ids.map(async id=>{
-        try{let cur='';
-          do{const j=await getJSON(`https://games.roproxy.com/v2/groups/${id}/games?limit=100${cur?'&cursor='+encodeURIComponent(cur):''}`);
-            (j.data||[]).forEach(x=>uids.add(x.id));cur=j.nextPageCursor}while(cur);
-        }catch(e){console.warn('group games',id,e)}}));
-      const list=[...uids];let visits=0;
-      for(let i=0;i<list.length;i+=50){
-        const j=await getJSON(`https://games.roproxy.com/v1/games?universeIds=${list.slice(i,i+50).join(',')}`);
-        (j.data||[]).forEach(x=>visits+=x.visits||0);
-      }
-      countTo(visEl,visits,compact);
-    }catch(e){console.warn('Group stats',e)}
+    await pool(ids,3,async id=>{
+      try{members[id]=(await get(`https://groups.roproxy.com/v1/groups/${id}`)).memberCount||0}catch(e){console.warn('members',id)}
+      try{games[id]=await groupGames(id)}catch(e){console.warn('games',id)}
+    });
+    const all=[...new Set(Object.values(games).flat())];   // shared games are counted once
+    for(let i=0;i<all.length;i+=50){
+      const chunk=all.slice(i,i+50);
+      try{
+        const d=(await get(`https://games.roproxy.com/v1/games?universeIds=${chunk.join(',')}`)).data||[];
+        chunk.forEach(u=>{if(!(u in visits))visits[u]=0});
+        d.forEach(x=>{visits[x.id]=Math.max(visits[x.id]||0,x.visits||0)});   // visits never go down
+      }catch(e){console.warn('visits chunk')}
+    }
+    /* only show a total once EVERY group has reported, so it never shows a partial sum */
+    const memOk=ids.every(id=>id in members);
+    const visOk=ids.every(id=>games[id])&&all.every(u=>u in visits);
+    if(memOk)countTo(memEl,ids.reduce((a,id)=>a+members[id],0));
+    if(visOk)countTo(visEl,all.reduce((a,u)=>a+visits[u],0),compact);
+    setTimeout(load,memOk&&visOk?REFRESH_MS:RETRY_MS);
   }
-  load();setInterval(load,60000);
+  load();
 })();
 </script>
 </body>
-</html>
 </html>
