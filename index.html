@@ -857,79 +857,92 @@
       .btn{ font-size:.7rem; padding:.52rem .9rem; }
     }
 
-    /* ═══ ROBLOX GAME CARD ═══ */
-html, body { overflow-y: auto; }              /* page can now scroll on desktop */
+/* ═══ ROBLOX GAME CARD (blocky) ═══ */
+html, body { overflow-y: auto; }
 .page { height: auto; min-height: 100vh; overflow: visible; justify-content: flex-start; padding: 4.5rem 1.5rem 3rem; }
 .page > :nth-child(7){ animation-delay:.48s }
 
+#tilt-roblox { margin-top: 44px; }   /* room for the half-out icon */
+
 .roblox-card {
-  position: relative; width: 100%; border-radius: 18px; overflow: hidden;
+  position: relative; width: 100%; border-radius: 18px;
   border: 2px solid rgba(57,255,143,0.28);
   background: rgba(8,8,20,0.82); backdrop-filter: blur(28px);
   box-shadow: 0 0 30px rgba(57,255,143,0.08), 0 0 70px rgba(122,162,247,0.06);
   transition: border-color .3s, box-shadow .3s;
+  text-align: center;
 }
 .roblox-card:hover {
   border-color: rgba(57,255,143,0.6);
   box-shadow: 0 0 28px rgba(57,255,143,0.22), 0 0 70px rgba(187,154,247,0.12);
 }
-/* blurred game icon as ambient backdrop */
+
+/* clipped ambient backdrop (card itself is overflow:visible so the icon can poke out) */
+.rb-bg-clip { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; z-index: 0; pointer-events: none; }
 .rb-bg {
   position: absolute; inset: -30px; background-size: cover; background-position: center;
-  filter: blur(40px) saturate(1.4); opacity: 0.22; transition: opacity .6s; z-index: 0;
+  filter: blur(40px) saturate(1.4); opacity: 0.2;
 }
-.rb-inner { position: relative; z-index: 1; padding: 18px 20px 0; display: flex; align-items: center; gap: 16px; }
+
+/* Icon straddles the top border */
 .rb-icon-wrap {
-  position: relative; width: 84px; height: 84px; flex-shrink: 0; border-radius: 18px; padding: 2px;
-  background: conic-gradient(from 0deg, #7aa2f7, #bb9af7, #39ff8f, #7aa2f7);
-  animation: rbSpin 6s linear infinite paused;
+  position: absolute; top: -44px; left: 50%; transform: translateX(-50%);
+  width: 88px; height: 88px; border-radius: 22px; z-index: 5;
+  border: 4px solid #08080f; background: #111128; overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(57,255,143,0.4), 0 0 22px rgba(57,255,143,0.25);
 }
-.roblox-card:hover .rb-icon-wrap { animation-play-state: running; }
-@keyframes rbSpin { to { filter: hue-rotate(360deg); } }
-.rb-icon-wrap img, .rb-icon-sk {
-  width: 100%; height: 100%; border-radius: 16px; object-fit: cover; display: block; background: #111128;
-}
-.rb-icon-sk { position: absolute; inset: 2px; width: auto; height: auto;
+.rb-icon-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rb-icon-sk { position: absolute; inset: 0;
   background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.07) 50%, var(--surface) 75%);
   background-size: 200% 100%; animation: skSh 1.5s ease infinite; }
-.rb-info { min-width: 0; flex: 1; }
-.rb-label { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--purple); margin-bottom: 3px; }
+
+.rb-body { position: relative; z-index: 1; padding: 56px 20px 0; display: flex; flex-direction: column; gap: 12px; }
+
 .rb-name {
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.15rem; color: #fff; line-height: 1.15;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; color: #fff; line-height: 1.15;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.rb-group { font-family: 'DM Sans', sans-serif; font-size: .74rem; color: var(--muted); margin-top: -8px; }
+
+.rb-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); }
+
+/* CCU block */
 .rb-ccu {
-  display: inline-flex; align-items: center; gap: 7px; margin-top: 8px; padding: 4px 11px; border-radius: 999px;
-  font-size: .72rem; color: var(--neon-green); border: 1px solid rgba(57,255,143,0.3);
-  background: rgba(57,255,143,0.07); text-shadow: 0 0 10px rgba(57,255,143,0.5);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 11px 14px; border-radius: 10px;
+  border: 1px solid rgba(57,255,143,0.35); background: rgba(57,255,143,0.07);
+  color: #fff; font-size: .78rem;
 }
-.rb-ccu b { font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
-.rb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green);
-  box-shadow: 0 0 8px var(--neon-green); animation: pulse 1.6s ease-in-out infinite; }
-.rb-ccu.err { color: var(--red); border-color: rgba(247,118,142,.3); background: rgba(247,118,142,.07); text-shadow: none; }
+.rb-ccu b { font-weight: 700; font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--neon-green); text-shadow: 0 0 10px rgba(57,255,143,0.5); }
+.rb-ccu small { font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.rb-ccu.err { border-color: rgba(247,118,142,.35); background: rgba(247,118,142,.07); }
+.rb-ccu.err b { color: var(--red); text-shadow: none; }
 .rb-ccu.err .rb-dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
 
-.rb-stats { position: relative; z-index: 1; display: flex; gap: 8px; padding: 14px 20px 0; }
-.rb-stat {
-  flex: 1; padding: 8px 10px; border-radius: 10px; text-align: center;
-  border: 1px solid var(--border); background: var(--surface);
+/* Visits | Favourites block */
+.rb-stats {
+  display: grid; grid-template-columns: 1fr 1px 1fr; align-items: center;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface); padding: 11px 0;
 }
-.rb-stat b { display: block; font-family: 'Syne', sans-serif; font-size: .95rem; color: #fff; font-variant-numeric: tabular-nums; }
-.rb-stat span { font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rb-stats i { width: 1px; height: 22px; background: var(--border); }
+.rb-stat { display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: .92rem; color: #fff; font-variant-numeric: tabular-nums; }
 
-.rb-footer { position: relative; z-index: 1; display: flex; justify-content: flex-end; padding: 14px 20px 16px; }
+.rb-ico { width: 15px; height: 15px; flex-shrink: 0; stroke: #fff; fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; }
+
+/* Play button — full-width block flush with card bottom */
 .rb-play {
-  display: inline-flex; align-items: center; gap: .4rem; padding: 0.42rem 1rem; border-radius: 8px;
-  border: 1px solid rgba(57,255,143,0.35); background: rgba(57,255,143,0.07); color: var(--neon-green);
-  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .74rem; text-decoration: none;
-  transition: border-color .25s, box-shadow .25s, background .25s, transform .2s;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  margin: 14px -20px 0; padding: 14px; border-top: 1px solid rgba(57,255,143,0.25);
+  border-radius: 0 0 16px 16px; background: rgba(57,255,143,0.07); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; letter-spacing: .03em; text-decoration: none;
+  transition: background .25s, box-shadow .25s, text-shadow .25s;
 }
-.rb-play:hover { border-color: var(--neon-green); background: rgba(57,255,143,0.14);
-  box-shadow: 0 0 14px rgba(57,255,143,0.4), 0 0 28px rgba(57,255,143,0.15); transform: translateX(2px); }
-    
-  </style>
-</head>
-<body>
+.rb-play .rb-ico { fill: #fff; stroke: none; }
+.rb-play:hover { background: rgba(57,255,143,0.16); box-shadow: inset 0 0 22px rgba(57,255,143,0.12); text-shadow: 0 0 10px rgba(57,255,143,0.7); }
 
 <canvas id="stars-canvas"></canvas>
 
@@ -1085,27 +1098,44 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
   </div>
   </div><!-- /tilt-player -->
 
-  <!-- Roblox Game Card -->
+<!-- Roblox Game Card -->
 <div class="tilt-outer" id="tilt-roblox">
   <div class="roblox-card" id="roblox-card">
-    <div class="rb-bg" id="rb-bg"></div>
-    <div class="rb-inner">
-      <div class="rb-icon-wrap">
-        <span class="rb-icon-sk" id="rb-icon-sk"></span>
-        <img id="rb-icon" alt="Game icon" style="display:none" />
-      </div>
-      <div class="rb-info">
-        <div class="rb-label">🎮 My Roblox Game</div>
-        <div class="rb-name" id="rb-name">Loading…</div>
-        <div class="rb-ccu" id="rb-ccu-pill"><span class="rb-dot"></span><b id="rb-ccu">—</b> playing now</div>
-      </div>
+    <div class="rb-bg-clip"><div class="rb-bg" id="rb-bg"></div></div>
+
+    <div class="rb-icon-wrap">
+      <span class="rb-icon-sk" id="rb-icon-sk"></span>
+      <img id="rb-icon" alt="Game icon" style="display:none" />
     </div>
-    <div class="rb-stats">
-      <div class="rb-stat"><b id="rb-visits">—</b><span>Visits</span></div>
-      <div class="rb-stat"><b id="rb-favs">—</b><span>Favorites</span></div>
-    </div>
-    <div class="rb-footer">
-      <a class="rb-play" id="rb-link" href="https://www.roblox.com" target="_blank" rel="noopener">Play on Roblox &nbsp;→</a>
+
+    <div class="rb-body">
+      <div class="rb-divider"></div>
+      <div class="rb-name" id="rb-name">Loading…</div>
+      <div class="rb-group" id="rb-group">—</div>
+
+      <div class="rb-ccu" id="rb-ccu-box">
+        <span class="rb-dot"></span>
+        <svg class="rb-ico" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg>
+        <b id="rb-ccu">—</b>
+        <small>playing now</small>
+      </div>
+
+      <div class="rb-stats">
+        <div class="rb-stat">
+          <svg class="rb-ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.4c2 .8 3.5 2.6 3.5 5.6"/></svg>
+          <span id="rb-visits">—</span>
+        </div>
+        <i></i>
+        <div class="rb-stat">
+          <svg class="rb-ico" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>
+          <span id="rb-favs">—</span>
+        </div>
+      </div>
+
+      <a class="rb-play" id="rb-link" href="https://www.roblox.com" target="_blank" rel="noopener">
+        <svg class="rb-ico" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
+        Play on Roblox
+      </a>
     </div>
   </div>
 </div>
@@ -1702,7 +1732,7 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
   });
 })();
 
-  /* ═══════════════════════
+ /* ═══════════════════════
    ROBLOX GAME CARD
 ═══════════════════════ */
 (function(){
@@ -1716,7 +1746,7 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
   };
 
   const $ = id => document.getElementById(id);
-  const nameEl = $('rb-name'), ccuEl = $('rb-ccu'), pill = $('rb-ccu-pill');
+  const nameEl = $('rb-name'), groupEl = $('rb-group'), ccuEl = $('rb-ccu'), box = $('rb-ccu-box');
   const visitsEl = $('rb-visits'), favsEl = $('rb-favs');
   const iconEl = $('rb-icon'), iconSk = $('rb-icon-sk'), bgEl = $('rb-bg');
   $('rb-link').href = `https://www.roblox.com/games/${PLACE_ID}`;
@@ -1725,7 +1755,6 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
   const compact = n => n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M'
                      : n >= 1e4 ? (n/1e3).toFixed(1)+'K' : nf.format(n);
 
-  // smooth count-up
   function countTo(el, to, fmt = nf.format){
     const from = parseInt(el.dataset.v || '0', 10);
     el.dataset.v = to;
@@ -1749,10 +1778,11 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
 
       nameEl.textContent = g.name;
       nameEl.title = g.name;
+      groupEl.textContent = g.creator?.name || '';
       countTo(ccuEl, g.playing || 0);
       countTo(visitsEl, g.visits || 0, compact);
       countTo(favsEl, g.favoritedCount || 0, compact);
-      pill.classList.remove('err');
+      box.classList.remove('err');
 
       if(!iconLoaded){
         const ic = (await getJSON(API.icon(universeId))).data?.[0]?.imageUrl;
@@ -1765,7 +1795,7 @@ html, body { overflow-y: auto; }              /* page can now scroll on desktop 
       }
     } catch(e){
       console.warn('Roblox API:', e);
-      pill.classList.add('err');
+      box.classList.add('err');
       if(!iconLoaded) nameEl.textContent = 'Game unavailable';
     }
   }
