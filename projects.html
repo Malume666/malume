@@ -106,6 +106,28 @@ a.g-status:hover{background:rgba(var(--c),.16);box-shadow:inset 0 0 22px rgba(va
 .dots{display:flex;gap:8px}
 .dots button{width:8px;height:8px;border-radius:999px;border:0;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s}
 .dots button.on{width:26px;background:linear-gradient(90deg,#7aa2f7,#bb9af7);box-shadow:0 0 10px rgba(122,162,247,.6)}
+/* group stats card */
+.page>:nth-child(6){animation-delay:.40s}
+.gs{width:min(420px,calc(100vw - 3rem));margin-top:1.5rem}
+.gs-card{--c:187,154,247;position:relative;border-radius:18px;text-align:center;border:2px solid rgba(var(--c),.28);background:rgba(8,8,20,.82);backdrop-filter:blur(28px);
+  box-shadow:0 0 30px rgba(var(--c),.1),0 0 70px rgba(122,162,247,.07);transition:border-color .3s,box-shadow .3s}
+.gs-card:hover{border-color:rgba(var(--c),.6);box-shadow:0 0 28px rgba(var(--c),.24),0 0 70px rgba(122,162,247,.12)}
+.gs-stage{position:relative;height:150px;overflow:hidden;border-radius:16px 16px 0 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+.gs-ico{position:absolute;top:50%;left:50%;width:92px;height:92px;margin:-46px 0 0 -46px;padding:0;border-radius:22px;border:3px solid #08080f;background:#111128;overflow:hidden;cursor:pointer;
+  box-shadow:0 0 0 2px rgba(var(--c),.15);transition:transform .55s cubic-bezier(.23,1,.32,1),opacity .55s,filter .55s,box-shadow .4s}
+.gs-ico img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.gs-ico.sel{cursor:default;box-shadow:0 0 0 2px rgba(var(--c),.55),0 0 26px rgba(var(--c),.4)}
+.gs-body{position:relative;z-index:1;padding:0 20px;display:flex;flex-direction:column;gap:12px}
+a.gs-name{display:block;text-decoration:none;color:#fff}
+a.gs-name:hover{text-shadow:0 0 12px rgba(var(--c),.8)}
+.gs-stats{display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:12px 0}
+.gs-stats i{width:1px;height:34px;background:var(--border)}
+.gs-stat{display:flex;flex-direction:column;align-items:center;gap:5px}
+.gs-stat div{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;font-variant-numeric:tabular-nums}
+.gs-stat small,.gs-rev small{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gs-rev{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px -20px 0;padding:14px;border-top:1px solid rgba(57,255,143,.25);border-radius:0 0 16px 16px;background:rgba(57,255,143,.07)}
+.gs-rev b{font-family:'Syne',sans-serif;font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--neon-green);text-shadow:0 0 10px rgba(57,255,143,.5)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -134,6 +156,31 @@ a.g-status:hover{background:rgba(var(--c),.16);box-shadow:inset 0 0 22px rgba(va
     <div class="dots" id="dots"></div>
     <button class="arrow" id="next" aria-label="Next game"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
   </div>
+
+  <!-- Group stats -->
+  <div class="gs">
+    <div class="gs-card">
+      <div class="gs-stage" id="gs-stage"></div>
+      <div class="gs-body">
+        <div class="g-div"></div>
+        <a class="g-name gs-name" id="gs-name" href="#" target="_blank" rel="noopener">Loading…</a>
+        <div class="gs-stats">
+          <div class="gs-stat">
+            <div><svg class="ico" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span id="gs-visits">—</span></div>
+            <small>Total visits</small>
+          </div><i></i>
+          <div class="gs-stat">
+            <div><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.4c2 .8 3.5 2.6 3.5 5.6"/></svg><span id="gs-members">—</span></div>
+            <small>Total members</small>
+          </div>
+        </div>
+        <div class="gs-rev">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+          <b id="gs-rev">—</b><small>Revenue generated</small>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -151,6 +198,14 @@ const GAMES = [
   { placeId: '79346814697976', status: 'deprecated',  name: 'Survive Brainrot Arena',      group: 'Oracle Productions' },
 ];
 const REFRESH = 30000;
+
+/* ═══════════════════════
+   GROUP STATS CARD — edit these
+   GROUP_IDS: the number in roblox.com/communities/XXXXXXX/name (add as many as you like)
+   REVENUE:   type your own total here, it's not available from any public API
+═══════════════════════ */
+const GROUP_IDS = ['35993395', '488515568', '492583749', '97331962', '612198374', '1010894035', '832119897', '356716637', '937507114', '621978084'];
+const REVENUE   = { value: 70000000, prefix: 'R$' };
 
 /* STARFIELD */
 (function(){
@@ -315,6 +370,77 @@ const REFRESH = 30000;
   }
   update();setInterval(update,REFRESH);
 })();
+
+/* GROUP STATS */
+(function(){
+  const $=id=>document.getElementById(id);
+  const stage=$('gs-stage'),nameEl=$('gs-name'),visEl=$('gs-visits'),memEl=$('gs-members'),revEl=$('gs-rev');
+  const nf=new Intl.NumberFormat('en-US');
+  const compact=n=>n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':nf.format(n);
+  const getJSON=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  function countTo(el,to,fmt=nf.format){
+    const from=parseInt(el.dataset.v||'0',10);el.dataset.v=to;const t0=performance.now();
+    (function step(now){const p=Math.min(1,(now-t0)/900),e=1-Math.pow(1-p,3);
+      el.textContent=fmt(Math.round(from+(to-from)*e));if(p<1)requestAnimationFrame(step)})(t0);
+  }
+  countTo(revEl,REVENUE.value,n=>REVENUE.prefix+nf.format(n));
+
+  const ids=GROUP_IDS.map(String).filter(x=>/^\d+$/.test(x));
+  if(!ids.length){nameEl.textContent='Add your group IDs';nameEl.removeAttribute('href');return}
+  const groups=ids.map(id=>({id,name:'Loading…'}));
+  let sel=0;
+
+  groups.forEach((g,i)=>{
+    const b=document.createElement('button');b.className='gs-ico';b.innerHTML='<span class="sk"></span>';
+    b.onclick=()=>{sel=i;render()};stage.appendChild(b);g.el=b;
+  });
+  function render(){
+    groups.forEach((g,i)=>{
+      const d=i-sel,a=Math.abs(d);
+      g.el.style.transform=`translateX(${d*84}px) scale(${a===0?1:a===1?.68:.46})`;
+      g.el.style.opacity=a===0?1:a===1?.55:a===2?.25:0;
+      g.el.style.filter=a===0?'none':`blur(${a>1?1.5:.5}px)`;
+      g.el.style.zIndex=10-a;
+      g.el.style.pointerEvents=a>2?'none':'auto';
+      g.el.classList.toggle('sel',a===0);
+      g.el.setAttribute('aria-label',g.name);
+    });
+    const g=groups[sel];nameEl.textContent=g.name;nameEl.href=`https://www.roblox.com/groups/${g.id}`;
+  }
+  render();
+
+  /* icons (once) */
+  getJSON(`https://thumbnails.roproxy.com/v1/groups/icons?groupIds=${ids.join(',')}&size=420x420&format=Png&isCircular=false`)
+    .then(j=>(j.data||[]).forEach(o=>{
+      const g=groups.find(g=>g.id===String(o.targetId));
+      if(g&&o.imageUrl)g.el.innerHTML=`<img alt="" src="${o.imageUrl}">`;
+    })).catch(e=>console.warn('Group icons',e));
+
+  /* members + visits (summed across every group) */
+  async function load(){
+    try{
+      const info=await Promise.all(ids.map(id=>getJSON(`https://groups.roproxy.com/v1/groups/${id}`).catch(e=>{console.warn('group',id,e);return null})));
+      let members=0;
+      info.forEach((g,i)=>{if(g){groups[i].name=g.name;members+=g.memberCount||0}});
+      countTo(memEl,members);render();
+
+      const uids=new Set();
+      await Promise.all(ids.map(async id=>{
+        try{let cur='';
+          do{const j=await getJSON(`https://games.roproxy.com/v2/groups/${id}/games?limit=100${cur?'&cursor='+encodeURIComponent(cur):''}`);
+            (j.data||[]).forEach(x=>uids.add(x.id));cur=j.nextPageCursor}while(cur);
+        }catch(e){console.warn('group games',id,e)}}));
+      const list=[...uids];let visits=0;
+      for(let i=0;i<list.length;i+=50){
+        const j=await getJSON(`https://games.roproxy.com/v1/games?universeIds=${list.slice(i,i+50).join(',')}`);
+        (j.data||[]).forEach(x=>visits+=x.visits||0);
+      }
+      countTo(visEl,visits,compact);
+    }catch(e){console.warn('Group stats',e)}
+  }
+  load();setInterval(load,60000);
+})();
 </script>
 </body>
+</html>
 </html>
