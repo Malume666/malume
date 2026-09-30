@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MALUME — Portfolio</title>
+<title>Projects</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='38%25' cy='32%25' r='62%25'%3E%3Cstop offset='0%25' stop-color='%23bb9af7'/%3E%3Cstop offset='55%25' stop-color='%237aa2f7'/%3E%3Cstop offset='100%25' stop-color='%234a6cf7'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23bg)'/%3E%3Cellipse cx='32' cy='32' rx='13' ry='30' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.55'/%3E%3Cellipse cx='32' cy='32' rx='30' ry='11' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.55'/%3E%3Ccircle cx='32' cy='32' r='30' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.9'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -118,7 +118,7 @@ a.g-status:hover{background:rgba(var(--c),.16);box-shadow:inset 0 0 22px rgba(va
 </a>
 
 <main class="page">
-  <div class="name-wrap"><h1 class="name">Portfolio</h1></div>
+  <div class="name-wrap"><h1 class="name">Projects</h1></div>
 
   <div class="stat">
     <span class="stat-dot"></span>
@@ -144,9 +144,11 @@ a.g-status:hover{background:rgba(var(--c),.16);box-shadow:inset 0 0 22px rgba(va
    name / group: fallbacks used when there is no placeId or the API fails
 ═══════════════════════ */
 const GAMES = [
-  { placeId: 'YOUR_PLACE_ID', status: 'live' },
-  { placeId: '', status: 'development', name: 'Upcoming Project', group: 'Your Group' },
-  { placeId: '', status: 'deprecated',  name: 'Old Project',      group: 'Your Group' },
+  { placeId: '120951586797306', status: 'live' },
+  { placeId: '74363261596631', status: 'live' },
+  { placeId: '111816754023206', status: 'development', name: 'The Mystery', group: 'My Garden Business' },
+  { placeId: '83867192943537', status: 'development', name: 'My Garden Business', group: 'My Garden Business' },
+  { placeId: '79346814697976', status: 'deprecated',  name: 'Survive Brainrot Arena',      group: 'Oracle Productions' },
 ];
 const REFRESH = 30000;
 
@@ -177,7 +179,7 @@ const REFRESH = 30000;
 
 /* TYPING LINE (same cursor as the home page) */
 (function(){
-  const el=document.getElementById('typed'),W=['Roblox Developer','Systems & Gameplay','Games Shipped'];
+  const el=document.getElementById('typed'),W=['Roblox Game Projects'];
   let w=0,c=0,del=false;
   (function tick(){const s=W[w];
     if(!del){el.textContent=s.slice(0,++c);if(c===s.length){del=true;return setTimeout(tick,1800)}}
