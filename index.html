@@ -1099,27 +1099,44 @@ html, body { overflow-y: auto; }
   </div>
   </div><!-- /tilt-player -->
 
-  <!-- Roblox Game Card -->
+<!-- Roblox Game Card -->
 <div class="tilt-outer" id="tilt-roblox">
   <div class="roblox-card" id="roblox-card">
-    <div class="rb-bg" id="rb-bg"></div>
-    <div class="rb-inner">
-      <div class="rb-icon-wrap">
-        <span class="rb-icon-sk" id="rb-icon-sk"></span>
-        <img id="rb-icon" alt="Game icon" style="display:none" />
-      </div>
-      <div class="rb-info">
-        <div class="rb-label">🎮 My Roblox Game</div>
-        <div class="rb-name" id="rb-name">Loading…</div>
-        <div class="rb-ccu" id="rb-ccu-pill"><span class="rb-dot"></span><b id="rb-ccu">—</b> playing now</div>
-      </div>
+    <div class="rb-bg-clip"><div class="rb-bg" id="rb-bg"></div></div>
+
+    <div class="rb-icon-wrap">
+      <span class="rb-icon-sk" id="rb-icon-sk"></span>
+      <img id="rb-icon" alt="Game icon" style="display:none" />
     </div>
-    <div class="rb-stats">
-      <div class="rb-stat"><b id="rb-visits">—</b><span>Visits</span></div>
-      <div class="rb-stat"><b id="rb-favs">—</b><span>Favorites</span></div>
-    </div>
-    <div class="rb-footer">
-      <a class="rb-play" id="rb-link" href="https://www.roblox.com" target="_blank" rel="noopener">Play on Roblox &nbsp;→</a>
+
+    <div class="rb-body">
+      <div class="rb-divider"></div>
+      <div class="rb-name" id="rb-name">Loading…</div>
+      <div class="rb-group" id="rb-group">—</div>
+
+      <div class="rb-ccu" id="rb-ccu-box">
+        <span class="rb-dot"></span>
+        <svg class="rb-ico" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg>
+        <b id="rb-ccu">—</b>
+        <small>playing now</small>
+      </div>
+
+      <div class="rb-stats">
+        <div class="rb-stat">
+          <svg class="rb-ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.4c2 .8 3.5 2.6 3.5 5.6"/></svg>
+          <span id="rb-visits">—</span>
+        </div>
+        <i></i>
+        <div class="rb-stat">
+          <svg class="rb-ico" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>
+          <span id="rb-favs">—</span>
+        </div>
+      </div>
+
+      <a class="rb-play" id="rb-link" href="https://www.roblox.com" target="_blank" rel="noopener">
+        <svg class="rb-ico" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
+        Play on Roblox
+      </a>
     </div>
   </div>
 </div>
@@ -1730,7 +1747,7 @@ html, body { overflow-y: auto; }
   };
 
   const $ = id => document.getElementById(id);
-  const nameEl = $('rb-name'), ccuEl = $('rb-ccu'), pill = $('rb-ccu-pill');
+  const nameEl = $('rb-name'), groupEl = $('rb-group'), ccuEl = $('rb-ccu'), box = $('rb-ccu-box');
   const visitsEl = $('rb-visits'), favsEl = $('rb-favs');
   const iconEl = $('rb-icon'), iconSk = $('rb-icon-sk'), bgEl = $('rb-bg');
   $('rb-link').href = `https://www.roblox.com/games/${PLACE_ID}`;
@@ -1739,7 +1756,6 @@ html, body { overflow-y: auto; }
   const compact = n => n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M'
                      : n >= 1e4 ? (n/1e3).toFixed(1)+'K' : nf.format(n);
 
-  // smooth count-up
   function countTo(el, to, fmt = nf.format){
     const from = parseInt(el.dataset.v || '0', 10);
     el.dataset.v = to;
@@ -1763,10 +1779,11 @@ html, body { overflow-y: auto; }
 
       nameEl.textContent = g.name;
       nameEl.title = g.name;
+      groupEl.textContent = g.creator?.name || '';
       countTo(ccuEl, g.playing || 0);
       countTo(visitsEl, g.visits || 0, compact);
       countTo(favsEl, g.favoritedCount || 0, compact);
-      pill.classList.remove('err');
+      box.classList.remove('err');
 
       if(!iconLoaded){
         const ic = (await getJSON(API.icon(universeId))).data?.[0]?.imageUrl;
@@ -1779,7 +1796,7 @@ html, body { overflow-y: auto; }
       }
     } catch(e){
       console.warn('Roblox API:', e);
-      pill.classList.add('err');
+      box.classList.add('err');
       if(!iconLoaded) nameEl.textContent = 'Game unavailable';
     }
   }
